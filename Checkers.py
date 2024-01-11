@@ -24,9 +24,11 @@ BLANK_SQUARE = 0
 PLAYER_1_TURN = 0
 PLAYER_1 = 1
 PLAYER_1_SELECTION = 3
+PLAYER_1_KING = 5
 PLAYER_2_TURN = 1
 PLAYER_2 = 2
 PLAYER_2_SELECTION = 4
+PLAYER_2_KING = 6
 
 RED_PIECE_SETUP = [(0, 0), (0, 2), (0, 4), (0, 6),
                    (1, 1), (1, 3), (1, 5), (1, 7),
@@ -60,6 +62,17 @@ def valid_move(current_board, player, row_to_move, col_to_move, row_init, col_in
                 if col_init == col_to_move - 2:
                     if board[row_to_move - 1][col_to_move - 1] == PLAYER_2:
                         return True
+            elif row_init == row_to_move - 4:
+                if col_init == col_to_move + 4:
+                    if (board[row_to_move - 1][col_to_move + 1] == PLAYER_2 and
+                            valid_move(current_board, PLAYER_1, row_to_move, col_to_move, (row_to_move - 2),
+                                       (col_to_move + 2))):
+                        return True
+                if col_init == col_to_move - 4:
+                    if (board[row_to_move - 1][col_to_move - 1] == PLAYER_2 and
+                            valid_move(current_board, PLAYER_1, row_to_move, col_to_move, (row_to_move - 2),
+                                       (col_to_move - 2))):
+                        return True
     elif player == PLAYER_2:
         if current_board[row_to_move][col_to_move] == BLANK_SQUARE:
             if row_init == row_to_move + 1:
@@ -71,6 +84,17 @@ def valid_move(current_board, player, row_to_move, col_to_move, row_init, col_in
                         return True
                 if col_init == col_to_move - 2:
                     if board[row_to_move + 1][col_to_move - 1] == PLAYER_1:
+                        return True
+            elif row_init == row_to_move + 4:
+                if col_init == col_to_move + 4:
+                    if (board[row_to_move + 1][col_to_move + 1] == PLAYER_2 and
+                            valid_move(current_board, PLAYER_2, row_to_move, col_to_move, (row_to_move + 2),
+                                       (col_to_move + 2))):
+                        return True
+                if col_init == col_to_move - 4:
+                    if (board[row_to_move + 1][col_to_move - 1] == PLAYER_2 and
+                            valid_move(current_board, PLAYER_2, row_to_move, col_to_move, (row_to_move + 2),
+                                       (col_to_move - 2))):
                         return True
     else:
         return False
@@ -145,7 +169,7 @@ while not game_over:
             if turn == 0:
                 if not selection_made:
                     if board[row][column] == PLAYER_1:
-                        board[row][column] = 3
+                        board[row][column] = PLAYER_1_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
@@ -154,19 +178,23 @@ while not game_over:
                 else:
                     if board[row][column] == PLAYER_1:
                         board[selected_square[0],selected_square[1]] = PLAYER_1
-                        board[row][column] = 3
+                        board[row][column] = PLAYER_1_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
                         pygame.display.update()
                         draw_board(board)
                     elif valid_move(board, PLAYER_1, row, column, selected_square[0], selected_square[1]):
-                        if selected_square[1] == column + 2:
-                            board[selected_square[0] + 1][column + 1] = 0
-                        elif selected_square[1] == column - 2:
-                            board[selected_square[0] + 1][column - 1] = 0
+                        if selected_square[1] == column + 2 or selected_square[1] == column + 4:
+                            board[selected_square[0] + 1][column + 1] = BLANK_SQUARE
+                            if selected_square[1] == column + 4:
+                                board[selected_square[0] + 3][column + 3] = BLANK_SQUARE
+                        elif selected_square[1] == column - 2 or selected_square[1] == column - 4:
+                            board[selected_square[0] + 1][column - 1] = BLANK_SQUARE
+                            if selected_square[1] == column - 4:
+                                board[selected_square[0] + 3][column - 3] = BLANK_SQUARE
                         board[row][column] = PLAYER_1
-                        board[selected_square[0]][selected_square[1]] = 0
+                        board[selected_square[0]][selected_square[1]] = BLANK_SQUARE
                         selection_made = False
                         print(np.flip(board, 0))
                         pygame.display.update()
@@ -177,7 +205,7 @@ while not game_over:
             else:
                 if not selection_made:
                     if board[row][column] == PLAYER_2:
-                        board[row][column] = 4
+                        board[row][column] = PLAYER_2_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
@@ -186,17 +214,21 @@ while not game_over:
                 else:
                     if board[row][column] == PLAYER_2:
                         board[selected_square[0], selected_square[1]] = PLAYER_2
-                        board[row][column] = 4
+                        board[row][column] = PLAYER_2_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
                         pygame.display.update()
                         draw_board(board)
                     elif valid_move(board, PLAYER_2, row, column, selected_square[0], selected_square[1]):
-                        if selected_square[1] == column + 2:
-                            board[selected_square[0] - 1][column + 1] = 0
-                        elif selected_square[1] == column - 2:
-                            board[selected_square[0] - 1][column - 1] = 0
+                        if selected_square[1] == column + 2 or selected_square[1] == column + 4:
+                            board[selected_square[0] - 1][column + 1] = BLANK_SQUARE
+                            if selected_square[1] == column + 4:
+                                board[selected_square[0] - 1][column + 3] = BLANK_SQUARE
+                        elif selected_square[1] == column - 2 or selected_square[1] == column - 4:
+                            board[selected_square[0] - 1][column - 1] = BLANK_SQUARE
+                            if selected_square[1] == column - 4:
+                                board[selected_square[0] - 1][column - 3] = BLANK_SQUARE
                         board[row][column] = PLAYER_2
                         board[selected_square[0]][selected_square[1]] = 0
                         selection_made = False
