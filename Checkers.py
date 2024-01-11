@@ -14,7 +14,9 @@ COLUMN_COUNT = 8
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GREY = (200, 200, 200)
 RED = (255, 0, 0)
+PINK = (255, 180, 180)
 GREEN = (0, 255, 0)
 
 PLAYER_1 = 1
@@ -44,9 +46,9 @@ def selected_piece(board):
     pass
 
 
-def valid_move(current_board, player, col_to_move, row_to_move, col_init, row_init):
+def valid_move(current_board, player, row_to_move, col_to_move, row_init, col_init):
     if player == PLAYER_1:
-        if current_board[row_init][col_init] == player and current_board[row_to_move][col_to_move] == 0:
+        if current_board[row_to_move][col_to_move] == 0:
             if row_init == row_to_move - 1:
                 if col_init == col_to_move + 1 or col_init == col_to_move - 1:
                     return True
@@ -58,16 +60,16 @@ def valid_move(current_board, player, col_to_move, row_to_move, col_init, row_in
                     if board[row_to_move - 1][col_to_move - 1] == PLAYER_2:
                         return True
     elif player == PLAYER_2:
-        if current_board[row_init][col_init] == player and current_board[row_to_move][col_to_move] == 0:
+        if current_board[row_to_move][col_to_move] == 0:
             if row_init == row_to_move + 1:
                 if col_init == col_to_move + 1 or col_init == col_to_move - 1:
                     return True
             elif row_init == row_to_move + 2:
                 if col_init == col_to_move + 2:
-                    if board[row_to_move + 1][col_to_move + 1] == PLAYER_2:
+                    if board[row_to_move + 1][col_to_move + 1] == PLAYER_1:
                         return True
                 if col_init == col_to_move - 2:
-                    if board[row_to_move + 1][col_to_move - 1] == PLAYER_2:
+                    if board[row_to_move + 1][col_to_move - 1] == PLAYER_1:
                         return True
     else:
         return False
@@ -77,6 +79,7 @@ board = create_board()
 print(np.flip(board, 0))
 game_over = False
 turn = 0
+selection_made = False
 selected_square = none
 
 # GUI
@@ -106,9 +109,12 @@ def draw_board(board):
                 pygame.draw.circle(screen, RED, (int(c * SQUARE_SIZE + SQUARE_SIZE/2), int(r * SQUARE_SIZE + SQUARE_SIZE/2)), RADIUS)
             elif board[r][c] == 2:
                 pygame.draw.circle(screen, WHITE, (
-                int(c * SQUARE_SIZE + SQUARE_SIZE / 2), int(r * SQUARE_SIZE + SQUARE_SIZE / 2)), RADIUS)
+                    int(c * SQUARE_SIZE + SQUARE_SIZE / 2), int(r * SQUARE_SIZE + SQUARE_SIZE / 2)), RADIUS)
             elif board[r][c] == 3:
-                pygame.draw.circle(screen, GREEN, (
+                pygame.draw.circle(screen, PINK, (
+                    int(c * SQUARE_SIZE + SQUARE_SIZE / 2), int(r * SQUARE_SIZE + SQUARE_SIZE / 2)), RADIUS)
+            elif board[r][c] == 4:
+                pygame.draw.circle(screen, GREY, (
                     int(c * SQUARE_SIZE + SQUARE_SIZE / 2), int(r * SQUARE_SIZE + SQUARE_SIZE / 2)), RADIUS)
         pygame.display.update()
 
@@ -129,23 +135,56 @@ while not game_over:
             column = int(math.floor(x_position/SQUARE_SIZE))
             row = int(math.floor(y_position/SQUARE_SIZE))
             if turn == 0:
-                if board[row][column] == PLAYER_1:
-                    board[row][column] = 3
-                    turn += 1
-                    turn = turn % 2
-                    pygame.display.update()
-                    draw_board(board)
+                if not selection_made:
+                    if board[row][column] == PLAYER_1:
+                        board[row][column] = 3
+                        selected_square = (row, column)
+                        selection_made = True
+                        print(np.flip(board, 0))
+                        pygame.display.update()
+                        draw_board(board)
+                else:
+                    if valid_move(board, PLAYER_1, row, column, selected_square[0], selected_square[1]):
+                        if selected_square[1] == column + 2:
+                            board[selected_square[0] + 1][column + 1] = 0
+                        elif selected_square[1] == column - 2:
+                            board[selected_square[0] + 1][column - 1] = 0
+                        board[row][column] = PLAYER_1
+                        board[selected_square[0]][selected_square[1]] = 0
+                        selection_made = False
+                        print(np.flip(board, 0))
+                        pygame.display.update()
+                        draw_board(board)
+                        turn += 1
+                        turn = turn % 2
+
             else:
-                if board[row][column] == PLAYER_2:
-                    board[row][column] = 3
-                    turn += 1
-                    turn = turn % 2
-                    pygame.display.update()
-                    draw_board(board)
+                if not selection_made:
+                    if board[row][column] == PLAYER_2:
+                        board[row][column] = 4
+                        selected_square = (row, column)
+                        selection_made = True
+                        print(np.flip(board, 0))
+                        pygame.display.update()
+                        draw_board(board)
+                else:
+                    if valid_move(board, PLAYER_2, row, column, selected_square[0], selected_square[1]):
+                        if selected_square[1] == column + 2:
+                            board[selected_square[0] - 1][column + 1] = 0
+                        elif selected_square[1] == column - 2:
+                            board[selected_square[0] - 1][column - 1] = 0
+                        board[row][column] = PLAYER_2
+                        board[selected_square[0]][selected_square[1]] = 0
+                        selection_made = False
+                        print(np.flip(board, 0))
+                        pygame.display.update()
+                        draw_board(board)
+                        turn += 1
+                        turn = turn % 2
 
-        # pygame.display.update()
-        # draw_board(board)
-
-
+    if not 1 in board and not 3 in board:
+        game_over = True
+    elif not 2 in board and not 4 in board:
+        game_over = True
 # game_board = create_board()
 # print(game_board)
