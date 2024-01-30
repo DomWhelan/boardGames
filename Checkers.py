@@ -32,6 +32,7 @@ PLAYER_2_SELECTION = 4
 PLAYER_2_KING = 6
 PLAYER_2_KING_SELECTION = 8
 
+
 RED_PIECE_SETUP = [(0, 0), (0, 2), (0, 4), (0, 6),
                    (1, 1), (1, 3), (1, 5), (1, 7),
                    (2, 0), (2, 2), (2, 4), (2, 6)]
@@ -100,7 +101,7 @@ def valid_move(current_board, player, row_to_move, col_to_move, row_init, col_in
                         return True
                     # if (board[row_to_move - 1][col_to_move - 1] == PLAYER_2 and
                     if (is_opposing_player(player, board[row_to_move - 1][col_to_move - 1]) and
-                            valid_move(current_board, PLAYER_1, (row_to_move - 2), (col_to_move - 2),
+                            valid_move(current_board, player, (row_to_move - 2), (col_to_move - 2),
                                        row_init, col_init)):
                         return True
 
@@ -130,14 +131,16 @@ def valid_move(current_board, player, row_to_move, col_to_move, row_init, col_in
                                        (col_to_move - 2))):
                         return True
                 if col_init == col_to_move:
-                    if (is_opposing_player(player, board[row_to_move + 1][col_to_move + 1]) and
+                    if col_init <= 5:
+                        if (is_opposing_player(player, board[row_to_move + 1][col_to_move + 1]) and
                             valid_move(current_board, player, (row_to_move + 2), (col_to_move + 2),
                                        row_init, col_init)):
-                        return True
-                    if (is_opposing_player(player, board[row_to_move + 1][col_to_move - 1]) and
-                            valid_move(current_board, player, (row_to_move + 2), (col_to_move - 2),
-                                       row_init, col_init)):
-                        return True
+                            return True
+                    if col_init >= 2:
+                        if (is_opposing_player(player, board[row_to_move + 1][col_to_move - 1]) and
+                                valid_move(current_board, player, (row_to_move + 2), (col_to_move - 2),
+                                           row_init, col_init) and col_init >= 2):
+                            return True
     else:
         return False
 
@@ -160,24 +163,29 @@ HEIGHT = ROW_COUNT * SQUARE_SIZE
 SCREEN_MARGIN = 160
 SIZE = ((WIDTH + SCREEN_MARGIN), (HEIGHT + SCREEN_MARGIN))
 RADIUS = int(SQUARE_SIZE / 2 - 8)
+message_1 = "PLAYER 1 GO"
+message_2 = "PLAYER 2 GO"
+message_3 = "PLAYER 1 WINS"
+message_4 = "PLAYER 2 WINS"
 
 
-def draw_board(current_board):
+def draw_board(current_board, message):
+    my_font = pygame.font.SysFont("monospace", 75)
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
             if r % 2 == 0 and c % 2 == 0 or r % 2 == 1 and c % 2 == 1:
                 pygame.draw.rect(screen, BLACK,
-                                 (c * SQUARE_SIZE + SCREEN_MARGIN/2, r * SQUARE_SIZE + SCREEN_MARGIN/2,
+                                 (c * SQUARE_SIZE + SCREEN_MARGIN / 2, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
                                   SQUARE_SIZE, SQUARE_SIZE))
             else:
                 pygame.draw.rect(screen, WHITE,
-                                 (c * SQUARE_SIZE + SCREEN_MARGIN/2, r * SQUARE_SIZE + SCREEN_MARGIN/2,
+                                 (c * SQUARE_SIZE + SCREEN_MARGIN / 2, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
                                   SQUARE_SIZE, SQUARE_SIZE))
 
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
-            x_center = int(c * SQUARE_SIZE + SCREEN_MARGIN/2 + SQUARE_SIZE / 2)
-            y_center = int(r * SQUARE_SIZE + SCREEN_MARGIN/2 + SQUARE_SIZE / 2)
+            x_center = int(c * SQUARE_SIZE + SCREEN_MARGIN / 2 + SQUARE_SIZE / 2)
+            y_center = int(r * SQUARE_SIZE + SCREEN_MARGIN / 2 + SQUARE_SIZE / 2)
             king_points = [(x_center - 10, y_center - 10),
                            (x_center - 5, y_center - 3),
                            (x_center, y_center - 10),
@@ -204,17 +212,27 @@ def draw_board(current_board):
 
         pygame.display.update()
 
+    pygame.draw.rect(screen, GREEN, (0, 0, WIDTH + SCREEN_MARGIN, SCREEN_MARGIN / 2))
+    pygame.draw.rect(screen, GREEN, (0, HEIGHT + SCREEN_MARGIN/2, WIDTH + SCREEN_MARGIN, SCREEN_MARGIN / 2))
+    if message == message_1 or message == message_3:
+        label = my_font.render(message, 1, RED)
+        screen.blit(label, (160, 0))
+    else:
+        label = my_font.render(message, 1, WHITE)
+        screen.blit(label, (160, HEIGHT + SCREEN_MARGIN/2))
 
-def display_message(message, color):
-    label = my_font.render(message, 1, color)
-    screen.blit(label, (40, 10))
+
+# def display_message(message, color):
+#     label = my_font.render(message, 1, color)
+#     screen.blit(label, (40, 10))
 
 
 screen = pygame.display.set_mode(SIZE)
 screen.fill(GREEN)
-draw_board(board)
+draw_board(board, message_1)
 pygame.display.update()
-my_font = pygame.font.SysFont("monospace", 75)
+# my_font = pygame.font.SysFont("monospace", 75)
+
 
 while not game_over:
 
@@ -225,8 +243,8 @@ while not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x_position = event.pos[0]
             y_position = event.pos[1]
-            column = int(math.floor((x_position - SCREEN_MARGIN/2) / SQUARE_SIZE))
-            row = int(math.floor((y_position - SCREEN_MARGIN/2) / SQUARE_SIZE))
+            column = int(math.floor((x_position - SCREEN_MARGIN / 2) / SQUARE_SIZE))
+            row = int(math.floor((y_position - SCREEN_MARGIN / 2) / SQUARE_SIZE))
             if turn == PLAYER_1_TURN:
                 if not selection_made:
                     if board[row][column] == PLAYER_1 or board[row][column] == PLAYER_1_KING:
@@ -238,14 +256,14 @@ while not game_over:
                         selection_made = True
                         print(np.flip(board, 0))
                         pygame.display.update()
-                        draw_board(board)
+                        draw_board(board, message_1)
                 else:
                     if board[row][column] == PLAYER_1 or board[row][column] == PLAYER_1_KING:
                         if board[row][column] == PLAYER_1:
-                            if board[selected_square[0],selected_square[1]] == PLAYER_1_KING_SELECTION:
+                            if board[selected_square[0], selected_square[1]] == PLAYER_1_KING_SELECTION:
                                 board[selected_square[0], selected_square[1]] = PLAYER_1_KING
                             else:
-                                board[selected_square[0],selected_square[1]] = PLAYER_1
+                                board[selected_square[0], selected_square[1]] = PLAYER_1
                             board[row][column] = PLAYER_1_SELECTION
                         else:
                             if board[selected_square[0], selected_square[1]] == PLAYER_1_KING_SELECTION:
@@ -257,7 +275,7 @@ while not game_over:
                         selection_made = True
                         print(np.flip(board, 0))
                         pygame.display.update()
-                        draw_board(board)
+                        draw_board(board, message_1)
                     elif valid_move(board, PLAYER_1, row, column, selected_square[0], selected_square[1]):
                         if selected_square[1] == column + 2 or selected_square[1] == column + 4:
                             board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
@@ -268,14 +286,16 @@ while not game_over:
                             if selected_square[1] == column - 4:
                                 board[selected_square[0] + 3][selected_square[1] + 3] = BLANK_SQUARE
                         elif selected_square[1] == column:
-                            if (board[selected_square[0] + 1][selected_square[1] + 1] == PLAYER_2 and
+                            if (is_opposing_player(PLAYER_1, board[selected_square[0] + 1][selected_square[1] + 1]) and
                                     board[selected_square[0] + 2][selected_square[1] + 2] == BLANK_SQUARE and
-                                    board[selected_square[0] + 3][selected_square[1] + 1] == PLAYER_2):
+                                    is_opposing_player(PLAYER_1,
+                                                       board[selected_square[0] + 3][selected_square[1] + 1])):
                                 board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
                                 board[selected_square[0] + 3][selected_square[1] + 1] = BLANK_SQUARE
-                            elif (board[selected_square[0] + 1][selected_square[1] - 1] == PLAYER_2 and
+                            elif (is_opposing_player(PLAYER_1,
+                                                     board[selected_square[0] + 1][selected_square[1] - 1]) and
                                   board[selected_square[0] + 2][selected_square[1] - 2] == BLANK_SQUARE and
-                                    board[selected_square[0] + 3][selected_square[1] - 1] == PLAYER_2):
+                                  is_opposing_player(PLAYER_1, board[selected_square[0] + 3][selected_square[1] - 1])):
                                 board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
                                 board[selected_square[0] + 3][selected_square[1] - 1] = BLANK_SQUARE
                         if board[selected_square[0]][selected_square[1]] == PLAYER_1_SELECTION:
@@ -288,11 +308,12 @@ while not game_over:
                         board[selected_square[0]][selected_square[1]] = BLANK_SQUARE
                         selection_made = False
                         print(np.flip(board, 0))
+                        draw_board(board, message_2)
                         pygame.display.update()
-                        draw_board(board)
                         turn += 1
                         turn = turn % 2
-                    elif valid_move(board, PLAYER_1_KING, row, column, selected_square[0], selected_square[1]):
+                    elif (board[selected_square[0]][selected_square[1]] == PLAYER_1_KING_SELECTION and
+                          valid_move(board, PLAYER_1_KING, row, column, selected_square[0], selected_square[1])):
                         if selected_square[1] == column + 2 or selected_square[1] == column + 4:
                             board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
                             if selected_square[1] == column + 4:
@@ -302,43 +323,58 @@ while not game_over:
                             if selected_square[1] == column - 4:
                                 board[selected_square[0] - 3][selected_square[1] + 3] = BLANK_SQUARE
                         elif selected_square[1] == column:
-                            if (board[selected_square[0] - 1][selected_square[1] + 1] == PLAYER_2 and
+                            if (is_opposing_player(PLAYER_1, board[selected_square[0] - 1][selected_square[1] + 1]) and
                                     board[selected_square[0] - 2][selected_square[1] + 2] == BLANK_SQUARE and
-                                    board[selected_square[0] - 3][selected_square[1] + 1] == PLAYER_2):
+                                    is_opposing_player(PLAYER_1,
+                                                       board[selected_square[0] - 3][selected_square[1] + 1])):
                                 board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
                                 board[selected_square[0] - 3][selected_square[1] + 1] = BLANK_SQUARE
-                            elif (board[selected_square[0] - 1][selected_square[1] - 1] == PLAYER_2 and
+                            elif (is_opposing_player(PLAYER_1,
+                                                     board[selected_square[0] - 1][selected_square[1] - 1]) and
                                   board[selected_square[0] - 2][selected_square[1] - 2] == BLANK_SQUARE and
-                                  board[selected_square[0] - 3][selected_square[1] - 1] == PLAYER_2):
+                                  is_opposing_player(PLAYER_1, board[selected_square[0] - 3][selected_square[1] - 1])):
                                 board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
                                 board[selected_square[0] - 3][selected_square[1] - 1] = BLANK_SQUARE
                         board[row][column] = PLAYER_1_KING
                         board[selected_square[0]][selected_square[1]] = BLANK_SQUARE
                         selection_made = False
                         print(np.flip(board, 0))
+                        draw_board(board, message_2)
                         pygame.display.update()
-                        draw_board(board)
                         turn += 1
                         turn = turn % 2
 
             else:
                 if not selection_made:
-                    if board[row][column] == PLAYER_2:
-                        board[row][column] = PLAYER_2_SELECTION
+                    if board[row][column] == PLAYER_2 or board[row][column] == PLAYER_2_KING:
+                        if board[row][column] == PLAYER_2:
+                            board[row][column] = PLAYER_2_SELECTION
+                        else:
+                            board[row][column] = PLAYER_2_KING_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
+                        draw_board(board, message_2)
                         pygame.display.update()
-                        draw_board(board)
                 else:
-                    if board[row][column] == PLAYER_2:
-                        board[selected_square[0], selected_square[1]] = PLAYER_2
-                        board[row][column] = PLAYER_2_SELECTION
+                    if board[row][column] == PLAYER_2 or board[row][column] == PLAYER_2_KING:
+                        if board[row][column] == PLAYER_2:
+                            if board[selected_square[0], selected_square[1]] == PLAYER_2_KING_SELECTION:
+                                board[selected_square[0], selected_square[1]] = PLAYER_2_KING
+                            else:
+                                board[selected_square[0], selected_square[1]] = PLAYER_2
+                            board[row][column] = PLAYER_2_SELECTION
+                        else:
+                            if board[selected_square[0], selected_square[1]] == PLAYER_2_KING_SELECTION:
+                                board[selected_square[0], selected_square[1]] = PLAYER_2_KING
+                            else:
+                                board[selected_square[0], selected_square[1]] = PLAYER_2
+                            board[row][column] = PLAYER_2_KING_SELECTION
                         selected_square = (row, column)
                         selection_made = True
                         print(np.flip(board, 0))
+                        draw_board(board, message_2)
                         pygame.display.update()
-                        draw_board(board)
                     elif valid_move(board, PLAYER_2, row, column, selected_square[0], selected_square[1]):
                         if selected_square[1] == column + 2 or selected_square[1] == column + 4:
                             board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
@@ -349,28 +385,75 @@ while not game_over:
                             if selected_square[1] == column - 4:
                                 board[selected_square[0] - 3][selected_square[1] + 3] = BLANK_SQUARE
                         elif selected_square[1] == column:
-                            if (board[selected_square[0] - 1][selected_square[1] + 1] == PLAYER_1 and
+                            if (is_opposing_player(PLAYER_2, board[selected_square[0] - 1][selected_square[1] + 1]) and
                                     board[selected_square[0] - 2][selected_square[1] + 2] == BLANK_SQUARE and
-                                    board[selected_square[0] - 3][selected_square[1] + 1] == PLAYER_1):
+                                    is_opposing_player(PLAYER_2,
+                                                       board[selected_square[0] - 3][selected_square[1] + 1])):
                                 board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
                                 board[selected_square[0] - 3][selected_square[1] + 1] = BLANK_SQUARE
-                            elif (board[selected_square[0] - 1][selected_square[1] - 1] == PLAYER_1 and
+                            elif (is_opposing_player(PLAYER_2,
+                                                     board[selected_square[0] - 1][selected_square[1] - 1]) and
                                   board[selected_square[0] - 2][selected_square[1] - 2] == BLANK_SQUARE and
-                                    board[selected_square[0] - 3][selected_square[1] - 1] == PLAYER_1):
+                                  is_opposing_player(PLAYER_2, board[selected_square[0] - 3][selected_square[1] - 1])):
                                 board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
                                 board[selected_square[0] - 3][selected_square[1] - 1] = BLANK_SQUARE
-                        board[row][column] = PLAYER_2
+                        if board[selected_square[0]][selected_square[1]] == PLAYER_2_SELECTION:
+                            if row == 0:
+                                board[row][column] = PLAYER_2_KING
+                            else:
+                                board[row][column] = PLAYER_2
+                        else:
+                            board[row][column] = PLAYER_2_KING
                         board[selected_square[0]][selected_square[1]] = BLANK_SQUARE
                         selection_made = False
                         print(np.flip(board, 0))
+                        draw_board(board, message_1)
                         pygame.display.update()
-                        draw_board(board)
+                        turn += 1
+                        turn = turn % 2
+                    elif (board[selected_square[0]][selected_square[1]] == PLAYER_1_KING_SELECTION and
+                          valid_move(board, PLAYER_2_KING, row, column, selected_square[0], selected_square[1])):
+                        if selected_square[1] == column + 2 or selected_square[1] == column + 4:
+                            board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
+                            if selected_square[1] == column + 4:
+                                board[selected_square[0] + 3][selected_square[1] - 3] = BLANK_SQUARE
+                        elif selected_square[1] == column - 2 or selected_square[1] == column - 4:
+                            board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
+                            if selected_square[1] == column - 4:
+                                board[selected_square[0] + 3][selected_square[1] + 3] = BLANK_SQUARE
+                        elif selected_square[1] == column:
+                            if (is_opposing_player(PLAYER_2, board[selected_square[0] + 1][selected_square[1] + 1]) and
+                                    board[selected_square[0] + 2][selected_square[1] + 2] == BLANK_SQUARE and
+                                    is_opposing_player(PLAYER_2,
+                                                       board[selected_square[0] + 3][selected_square[1] + 1])):
+                                board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
+                                board[selected_square[0] + 3][selected_square[1] + 1] = BLANK_SQUARE
+                            elif (is_opposing_player(PLAYER_2,
+                                                     board[selected_square[0] + 1][selected_square[1] - 1]) and
+                                  board[selected_square[0] + 2][selected_square[1] - 2] == BLANK_SQUARE and
+                                  is_opposing_player(PLAYER_2, board[selected_square[0] + 3][selected_square[1] - 1])):
+                                board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
+                                board[selected_square[0] + 3][selected_square[1] - 1] = BLANK_SQUARE
+                        board[row][column] = PLAYER_2_KING
+                        board[selected_square[0]][selected_square[1]] = BLANK_SQUARE
+                        selection_made = False
+                        print(np.flip(board, 0))
+                        draw_board(board, message_1)
+                        pygame.display.update()
                         turn += 1
                         turn = turn % 2
 
-    if 1 not in board and 3 not in board:
+    if (PLAYER_1 not in board and PLAYER_1_KING not in board and PLAYER_1_SELECTION not in board and
+            PLAYER_1_KING_SELECTION not in board):
+        draw_board(board, message_4)
+        pygame.display.update()
+        pygame.time.wait(3000)
         game_over = True
-    elif 2 not in board and 4 not in board:
+    elif (PLAYER_2 not in board and PLAYER_2_KING not in board and PLAYER_2_SELECTION not in board and
+          PLAYER_2_KING_SELECTION not in board):
+        draw_board(board, message_3)
+        pygame.display.update()
+        pygame.time.wait(3000)
         game_over = True
 # game_board = create_board()
 # print(game_board)
