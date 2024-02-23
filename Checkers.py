@@ -13,11 +13,11 @@ ROW_COUNT = 8
 COLUMN_COUNT = 8
 
 BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREY = (200, 200, 200)
-RED = (255, 0, 0)
+WHITE = (210, 210, 220)
+GREY = (180, 180, 200)
+RED = (200, 0, 0)
 PINK = (255, 180, 180)
-GREEN = (0, 120, 0)
+GREEN = (10, 100, 10)
 YELLOW = (255, 255, 204)
 
 BLANK_SQUARE = 0
@@ -161,7 +161,7 @@ SQUARE_SIZE = 80
 WIDTH = COLUMN_COUNT * SQUARE_SIZE
 HEIGHT = ROW_COUNT * SQUARE_SIZE
 SCREEN_MARGIN = 160
-SIZE = ((WIDTH + SCREEN_MARGIN), (HEIGHT + SCREEN_MARGIN))
+SIZE = ((WIDTH + SCREEN_MARGIN*2), (HEIGHT + SCREEN_MARGIN))
 RADIUS = int(SQUARE_SIZE / 2 - 8)
 message_1 = "PLAYER 1 GO"
 message_2 = "PLAYER 2 GO"
@@ -175,16 +175,16 @@ def draw_board(current_board, message):
         for r in range(ROW_COUNT):
             if r % 2 == 0 and c % 2 == 0 or r % 2 == 1 and c % 2 == 1:
                 pygame.draw.rect(screen, BLACK,
-                                 (c * SQUARE_SIZE + SCREEN_MARGIN / 2, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
+                                 (c * SQUARE_SIZE + SCREEN_MARGIN, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
                                   SQUARE_SIZE, SQUARE_SIZE))
             else:
                 pygame.draw.rect(screen, WHITE,
-                                 (c * SQUARE_SIZE + SCREEN_MARGIN / 2, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
+                                 (c * SQUARE_SIZE + SCREEN_MARGIN, r * SQUARE_SIZE + SCREEN_MARGIN / 2,
                                   SQUARE_SIZE, SQUARE_SIZE))
 
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
-            x_center = int(c * SQUARE_SIZE + SCREEN_MARGIN / 2 + SQUARE_SIZE / 2)
+            x_center = int(c * SQUARE_SIZE + SCREEN_MARGIN + SQUARE_SIZE / 2)
             y_center = int(r * SQUARE_SIZE + SCREEN_MARGIN / 2 + SQUARE_SIZE / 2)
             king_points = [(x_center - 10, y_center - 10),
                            (x_center - 5, y_center - 3),
@@ -216,7 +216,7 @@ def draw_board(current_board, message):
     pygame.draw.rect(screen, GREEN, (0, HEIGHT + SCREEN_MARGIN/2, WIDTH + SCREEN_MARGIN, SCREEN_MARGIN / 2))
     if message == message_1 or message == message_3:
         label = my_font.render(message, 1, RED)
-        screen.blit(label, (160, 0))
+        screen.blit(label, (200, 0))
     else:
         label = my_font.render(message, 1, WHITE)
         screen.blit(label, (160, HEIGHT + SCREEN_MARGIN/2))
@@ -243,7 +243,7 @@ while not game_over:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x_position = event.pos[0]
             y_position = event.pos[1]
-            column = int(math.floor((x_position - SCREEN_MARGIN / 2) / SQUARE_SIZE))
+            column = int(math.floor((x_position - SCREEN_MARGIN) / SQUARE_SIZE))
             row = int(math.floor((y_position - SCREEN_MARGIN / 2) / SQUARE_SIZE))
             if turn == PLAYER_1_TURN:
                 if not selection_made:
@@ -411,7 +411,7 @@ while not game_over:
                         pygame.display.update()
                         turn += 1
                         turn = turn % 2
-                    elif (board[selected_square[0]][selected_square[1]] == PLAYER_1_KING_SELECTION and
+                    elif (board[selected_square[0]][selected_square[1]] == PLAYER_2_KING_SELECTION and
                           valid_move(board, PLAYER_2_KING, row, column, selected_square[0], selected_square[1])):
                         if selected_square[1] == column + 2 or selected_square[1] == column + 4:
                             board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
