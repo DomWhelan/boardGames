@@ -455,5 +455,4 @@ while not game_over:
         pygame.display.update()
         pygame.time.wait(3000)
         game_over = True
-# game_board = create_board()
-# print(game_board)
+
