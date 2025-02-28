@@ -137,6 +137,30 @@ def run_game():
                                     valid_move(current_board, player, (row_to_move + 2), (col_to_move - 2),
                                                row_init, col_init) and col_init >= 2):
                                 return True
+        if player == PLAYER_1_KING or player == PLAYER_2_KING:
+            if row_init == row_to_move:
+                if col_init == col_to_move - 4:
+                    if row_init < 7:
+                        if is_opposing_player(player, board[row_to_move + 1][col_to_move - 1]):
+                            if is_opposing_player(player, board[row_to_move + 1][col_to_move - 3]):
+                                if current_board[row_to_move + 2][col_to_move - 2] == BLANK_SQUARE:
+                                    return True
+                    if row_to_move > 1:
+                        if is_opposing_player(player, board[row_to_move - 1][col_to_move - 1]):
+                            if is_opposing_player(player, board[row_to_move - 1][col_to_move - 3]):
+                                if current_board[row_to_move - 2][col_to_move - 2] == BLANK_SQUARE:
+                                    return True
+                if col_init == col_to_move + 4:
+                    if row_init < 7:
+                        if is_opposing_player(player, board[row_to_move + 1][col_to_move + 1]):
+                            if is_opposing_player(player, board[row_to_move + 1][col_to_move + 3]):
+                                if current_board[row_to_move + 2][col_to_move + 2] == BLANK_SQUARE:
+                                    return True
+                    if row_to_move > 1:
+                        if is_opposing_player(player, board[row_to_move - 1][col_to_move + 1]):
+                            if is_opposing_player(player, board[row_to_move - 1][col_to_move + 3]):
+                                if current_board[row_to_move - 2][col_to_move + 2] == BLANK_SQUARE:
+                                    return True
         else:
             return False
 
@@ -308,13 +332,48 @@ def run_game():
                         elif (board[selected_square[0]][selected_square[1]] == PLAYER_1_KING_SELECTION and
                               valid_move(board, PLAYER_1_KING, row, column, selected_square[0], selected_square[1])):
                             if selected_square[1] == column + 2 or selected_square[1] == column + 4:
-                                board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
-                                if selected_square[1] == column + 4:
-                                    board[selected_square[0] - 3][selected_square[1] - 3] = BLANK_SQUARE
+                                if selected_square[0] == row - 2 or selected_square[0] == row - 4:
+                                    board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
+                                    if selected_square[1] == column + 4:
+                                        board[selected_square[0] - 3][selected_square[1] - 3] = BLANK_SQUARE
+                                elif selected_square[0] == row:
+                                    if selected_square[1] == column + 4:
+                                        if row < 7:
+                                            if board[selected_square[0] + 2][selected_square[1] - 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_1, board[selected_square[0] + 1][
+                                                    selected_square[1] - 1]) and is_opposing_player(PLAYER_1, board[
+                                                    selected_square[0] + 1][selected_square[1] - 3]):
+                                                    board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
+                                                    board[selected_square[0] + 1][selected_square[1] - 3] = BLANK_SQUARE
+                                        if row > 1:
+                                            if board[selected_square[0] - 2][selected_square[1] - 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_1, board[selected_square[0] - 1][
+                                                    selected_square[1] - 1]) and is_opposing_player(PLAYER_1, board[
+                                                    selected_square[0] - 1][selected_square[1] - 3]):
+                                                    board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
+                                                    board[selected_square[0] - 1][selected_square[1] - 3] = BLANK_SQUARE
+
                             elif selected_square[1] == column - 2 or selected_square[1] == column - 4:
-                                board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
-                                if selected_square[1] == column - 4:
-                                    board[selected_square[0] - 3][selected_square[1] + 3] = BLANK_SQUARE
+                                if selected_square[0] == row - 2 or selected_square[0] == row - 4:
+                                    board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
+                                    if selected_square[1] == column - 4:
+                                        board[selected_square[0] - 3][selected_square[1] + 3] = BLANK_SQUARE
+                                elif selected_square[0] == row:
+                                    if selected_square[1] == column - 4:
+                                        if row < 7:
+                                            if board[selected_square[0] + 2][selected_square[1] + 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_1, board[selected_square[0] + 1][
+                                                    selected_square[1] + 1]) and is_opposing_player(PLAYER_1, board[
+                                                    selected_square[0] + 1][selected_square[1] + 3]):
+                                                    board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
+                                                    board[selected_square[0] + 1][selected_square[1] + 3] = BLANK_SQUARE
+                                        if row > 1:
+                                            if board[selected_square[0] - 2][selected_square[1] + 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_1, board[selected_square[0] - 1][
+                                                    selected_square[1] + 1]) and is_opposing_player(PLAYER_1, board[
+                                                    selected_square[0] - 1][selected_square[1] + 3]):
+                                                    board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
+                                                    board[selected_square[0] - 1][selected_square[1] + 3] = BLANK_SQUARE
                             elif selected_square[1] == column:
                                 if (is_opposing_player(PLAYER_1,
                                                        board[selected_square[0] - 1][selected_square[1] + 1]) and
@@ -411,13 +470,47 @@ def run_game():
                         elif (board[selected_square[0]][selected_square[1]] == PLAYER_2_KING_SELECTION and
                               valid_move(board, PLAYER_2_KING, row, column, selected_square[0], selected_square[1])):
                             if selected_square[1] == column + 2 or selected_square[1] == column + 4:
-                                board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
-                                if selected_square[1] == column + 4:
-                                    board[selected_square[0] + 3][selected_square[1] - 3] = BLANK_SQUARE
+                                if selected_square[0] == row - 2 or selected_square[0] == row - 4:
+                                    board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
+                                    if selected_square[1] == column + 4:
+                                        board[selected_square[0] + 3][selected_square[1] - 3] = BLANK_SQUARE
+                                elif selected_square[0] == row:
+                                    if selected_square[1] == column + 4:
+                                        if row < 7:
+                                            if board[selected_square[0] + 2][selected_square[1] - 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_2, board[selected_square[0] + 1][
+                                                    selected_square[1] - 1]) and is_opposing_player(PLAYER_2, board[
+                                                    selected_square[0] + 1][selected_square[1] - 3]):
+                                                    board[selected_square[0] + 1][selected_square[1] - 1] = BLANK_SQUARE
+                                                    board[selected_square[0] + 1][selected_square[1] - 3] = BLANK_SQUARE
+                                        if row > 1:
+                                            if board[selected_square[0] - 2][selected_square[1] - 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_2, board[selected_square[0] - 1][
+                                                    selected_square[1] - 1]) and is_opposing_player(PLAYER_2, board[
+                                                    selected_square[0] - 1][selected_square[1] - 3]):
+                                                    board[selected_square[0] - 1][selected_square[1] - 1] = BLANK_SQUARE
+                                                    board[selected_square[0] - 1][selected_square[1] - 3] = BLANK_SQUARE
                             elif selected_square[1] == column - 2 or selected_square[1] == column - 4:
-                                board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
-                                if selected_square[1] == column - 4:
-                                    board[selected_square[0] + 3][selected_square[1] + 3] = BLANK_SQUARE
+                                if selected_square[0] == row - 2 or selected_square[0] == row - 4:
+                                    board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
+                                    if selected_square[1] == column - 4:
+                                        board[selected_square[0] + 3][selected_square[1] + 3] = BLANK_SQUARE
+                                elif selected_square[0] == row:
+                                    if selected_square[1] == column - 4:
+                                        if row < 7:
+                                            if board[selected_square[0] + 2][selected_square[1] + 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_2, board[selected_square[0] + 1][
+                                                    selected_square[1] + 1]) and is_opposing_player(PLAYER_2, board[
+                                                    selected_square[0] + 1][selected_square[1] + 3]):
+                                                    board[selected_square[0] + 1][selected_square[1] + 1] = BLANK_SQUARE
+                                                    board[selected_square[0] + 1][selected_square[1] + 3] = BLANK_SQUARE
+                                        if row > 1:
+                                            if board[selected_square[0] - 2][selected_square[1] + 2] == BLANK_SQUARE:
+                                                if is_opposing_player(PLAYER_2, board[selected_square[0] - 1][
+                                                    selected_square[1] + 1]) and is_opposing_player(PLAYER_2, board[
+                                                    selected_square[0] - 1][selected_square[1] + 3]):
+                                                    board[selected_square[0] - 1][selected_square[1] + 1] = BLANK_SQUARE
+                                                    board[selected_square[0] - 1][selected_square[1] + 3] = BLANK_SQUARE
                             elif selected_square[1] == column:
                                 if (is_opposing_player(PLAYER_2,
                                                        board[selected_square[0] + 1][selected_square[1] + 1]) and
